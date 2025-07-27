@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -26,7 +28,7 @@ function App() {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://llama-backend.onrender.com/chat", { message: input });
+      const res = await axios.post(`${BACKEND_URL}/chat`, { message: input });
       setMessages((prev) => [...prev, { sender: "bot", text: res.data.reply }]);
     } catch (err) {
       setMessages((prev) => [...prev, { sender: "bot", text: "Error connecting to server." }]);
@@ -39,7 +41,7 @@ function App() {
   // Reset chat
   const resetChat = async () => {
     try {
-      await axios.post("https://llama-backend.onrender.com/reset");
+      await axios.post(`${BACKEND_URL}/reset`);
       if (messages.length > 0) {
         setHistory((prev) => [
           ...prev,
@@ -62,7 +64,7 @@ function App() {
 
     try {
       if (file.type === "application/pdf") {
-        const res = await axios.post("https://llama-backend.onrender.com/upload", formData, {
+        const res = await axios.post(`${BACKEND_URL}/upload`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         const pdfText = res.data.text.slice(0, 200);
@@ -72,7 +74,7 @@ function App() {
           { sender: "bot", text: `PDF Content Preview: ${pdfText}...` },
         ]);
       } else if (file.type.startsWith("image/")) {
-        const res = await axios.post("https://llama-backend.onrender.com/image", formData, {
+        const res = await axios.post(`${BACKEND_URL}/image`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         setMessages((prev) => [
